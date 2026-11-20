@@ -1,0 +1,12 @@
+node_modules/
+.DS_Store
+
+# Aset bergambar pribadi / berlisensi tidak ikut repo
+raw/
+public/assets/characters/
+public/assets/office/
+
+# Data lokal (log sesi, riwayat, katalog, setelan, XP pet) — pribadi, tidak pernah di-push.
+# Hanya koordinat denah kantor yang ikut.
+data/*
+!data/coords/

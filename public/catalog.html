@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Katalog · Agent Office</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' rx='3' fill='%231b1b24'/%3E%3Crect x='3' y='3' width='4' height='10' fill='%23f0b44c'/%3E%3Crect x='8' y='3' width='2' height='10' fill='%2362b3ff'/%3E%3Crect x='11' y='4' width='2' height='9' fill='%234ade80'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Silkscreen&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/catalog.css" />
+  </head>
+  <body class="catalog-page">
+    <header class="hud">
+      <a class="brand" href="/">Agent Office</a>
+      <div class="crumb">/ <span data-i18n="title">Katalog</span></div>
+      <div class="spacer"></div>
+      <div class="lang" role="group" aria-label="Bahasa / Language">
+        <button data-lang="id" aria-pressed="true">ID</button><button data-lang="en" aria-pressed="false">EN</button>
+      </div>
+      <button class="btn" id="rescan" data-i18n="rescan" data-i18n-title="rescanTitle">↻ Pindai ulang</button>
+      <a class="btn" href="/" data-i18n="office">← Kantor</a>
+    </header>
+
+    <main class="cat">
+      <section class="cat-top">
+        <form class="ask" id="askForm">
+          <span aria-hidden="true">✦</span>
+          <input id="askQ" data-i18n-ph="askPh" autocomplete="off" maxlength="400" />
+          <button class="btn" type="submit" id="askBtn" data-i18n="askBtn">✦ Tanya</button>
+        </form>
+        <div class="ask-out" id="askOut" hidden></div>
+        <label class="search">
+          <span aria-hidden="true">⌕</span>
+          <input id="q" type="search" data-i18n-ph="search" placeholder="Cari nama, deskripsi, tag, catatan…  (tekan / )" autocomplete="off" />
+        </label>
+        <div class="kinds" id="kinds" role="tablist"></div>
+        <div class="filters">
+          <button class="tog" id="fGroup" aria-pressed="true" data-i18n="byOrigin" data-i18n-title="byOriginTitle">▤ Per asal</button>
+          <select id="source" aria-label="Sumber"></select>
+          <button class="tog" id="fFav" aria-pressed="false" data-i18n="fav">★ Favorit</button>
+          <button class="tog" id="fNew" aria-pressed="false" data-i18n="isNew">Baru</button>
+          <button class="tog" id="fUnused" aria-pressed="false" data-i18n="unused">Belum pernah dipakai</button>
+          <button class="tog" id="cleanBtn" data-i18n="cleanBtn">🧹 Saran bersih-bersih</button>
+          <div class="spacer"></div>
+          <select id="sort" aria-label="Urutkan">
+            <option value="count" data-i18n="sortCount">Paling sering dipakai</option>
+            <option value="last" data-i18n="sortLast">Terakhir dipakai</option>
+            <option value="installed" data-i18n="sortInstalled">Baru dipasang</option>
+            <option value="name" data-i18n="sortName">Nama A–Z</option>
+          </select>
+        </div>
+        <div class="summary" id="summary"></div>
+      </section>
+
+      <section class="grid" id="grid" aria-live="polite"></section>
+      <p class="empty" id="empty" hidden data-i18n="empty">Tidak ada yang cocok dengan filter ini.</p>
+    </main>
+
+    <div class="modal" id="dlg" hidden>
+      <div class="sheet cat-sheet" role="dialog" aria-modal="true" aria-labelledby="dName">
+        <button class="close" id="dClose" aria-label="Tutup">✕</button>
+        <div id="dBody"></div>
+      </div>
+    </div>
+    <div class="toast" id="toast" hidden></div>
+
+    <script type="module" src="/catalog.js"></script>
+  </body>
+</html>

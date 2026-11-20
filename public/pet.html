@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Kapten Meong</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap"
+    />
+    <link rel="stylesheet" href="/pet.css" />
+    <style>
+      /* Jendela desktop transparan: hanya pet (dan kartunya) yang terlihat.
+         Jendela native mengikuti ukuran #wrap, ditambatkan di sudut bawah sisi pet. */
+      html,
+      body {
+        margin: 0;
+        background: transparent;
+        overflow: hidden;
+      }
+      #wrap {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6px;
+        padding: 10px 10px 6px;
+      }
+      body.left #wrap {
+        align-items: flex-start;
+      }
+      .pet.desktop {
+        --pet-size: 112px;
+        position: relative;
+        cursor: grab;
+        /* ruang untuk gelembung ucapan & +XP di atas kepala */
+        margin-top: 26px;
+      }
+      .pet.desktop:active {
+        cursor: grabbing;
+      }
+      .pet.desktop .pet-say {
+        font-size: 12px;
+        max-width: 190px;
+      }
+      .pet-panel[hidden] {
+        display: none;
+      }
+      #wrap:has(.pet-cards:not(:empty)) .pet.desktop .pet-say {
+        display: none;
+      }
+      .offline .pet {
+        opacity: 0.35;
+        filter: grayscale(1);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="wrap">
+      <div class="pet-panel" id="panel" hidden></div>
+      <div class="pet-cards" id="cards"></div>
+    </div>
+    <script type="module">
+      import { createPet, updatePet } from '/pet-view.js';
+      import { createPetCards } from '/pet-cards.js';
+      import { createPetPanel } from '/pet-panel.js';
+
+      // Di app Swift ada jembatan webkit; di browser biasa klik membuka Agent Office.
+      const native = window.webkit?.messageHandlers?.pet;
+      const post = (msg) => native?.postMessage(msg);
+      const openUrl = (url) => (native ? post({ type: 'open', url }) : window.open(url, '_blank'));
+
+      const wrap = document.getElementById('wrap');
+      const el = createPet('desktop');
+      wrap.append(el);
+      updatePet(el, { mood: 'sleep', level: 1, xp: 0, xpLevel: 0, xpNext: 50, gear: {}, say: '', gain: null, levelUp: false });
+
+      const cards = createPetCards(document.getElementById('cards'), {
+        // "Buka sesi" / "Lihat detail": sorot sesinya di halaman office (monitor khusus), bukan tab baru.
+        open: ({ sid }) => fetch('/api/focus', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ sid }) }),
+      });
+      const copyText = (text) => (native ? post({ type: 'copy', text }) : navigator.clipboard?.writeText(text));
+      const panel = createPetPanel(document.getElementById('panel'), { copy: copyText, open: openUrl });
+      document.addEventListener('keydown', (e) => e.key === 'Escape' && panel.toggle(false));
+
+      // Native memanggil ini setelah jendela dipindah: kartu membuka ke arah tengah layar.
+      window.petSide = (side) => document.body.classList.toggle('left', side === 'left');
+
+      // Ukuran jendela mengikuti isi.
+      let lastSize = '';
+      new ResizeObserver(() => {
+        const r = wrap.getBoundingClientRect();
+        const size = `${Math.ceil(r.width)}x${Math.ceil(r.height)}`;
+        if (size === lastSize) return;
+        lastSize = size;
+        post({ type: 'resize', w: Math.ceil(r.width), h: Math.ceil(r.height) });
+      }).observe(wrap);
+
+      // Seret pet = pindahkan jendela (ditangani native). Klik = elus; klik dua kali = panel mini.
+      let down = null;
+      let clickTimer = null;
+      function petClick() {
+        if (clickTimer) {
+          clearTimeout(clickTimer);
+          clickTimer = null;
+          panel.toggle();
+          return;
+        }
+        clickTimer = setTimeout(() => {
+          clickTimer = null;
+          fetch('/api/pet/pat', { method: 'POST' });
+        }, 260);
+      }
+      el.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        down = { x: e.screenX, y: e.screenY, moved: false };
+        post({ type: 'dragStart' });
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (down && Math.hypot(e.screenX - down.x, e.screenY - down.y) > 4) down.moved = true;
+      });
+      window.addEventListener('mouseup', () => {
+        if (down && !down.moved) petClick();
+        down = null;
+      });
+      el.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        post({ type: 'menu' });
+      });
+
+      // Data langsung dari server; kalau server mati, pet memudar dan mencoba lagi.
+      function connect() {
+        const es = new EventSource('/api/stream?pet=1');
+        es.onopen = () => document.body.classList.remove('offline');
+        es.onmessage = (m) => {
+          const snap = JSON.parse(m.data);
+          if (snap.pet) updatePet(el, snap.pet);
+          panel.update(snap);
+          if (cards.update(snap)) post({ type: 'attention' }); // kartu baru → pastikan terlihat
+        };
+        es.onerror = () => {
+          document.body.classList.add('offline');
+          es.close();
+          setTimeout(connect, 5000);
+        };
+      }
+      connect();
+    </script>
+  </body>
+</html>

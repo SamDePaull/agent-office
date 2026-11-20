@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Agent Office</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' rx='3' fill='%231b1b24'/%3E%3Crect x='3' y='3' width='10' height='6' fill='%23f0b44c'/%3E%3Crect x='4' y='11' width='8' height='2' fill='%2362b3ff'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Silkscreen&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/pet.css" />
+  </head>
+  <body>
+    <header class="hud">
+      <div class="brand">Agent Office</div>
+      <div class="live" id="live"><span class="dot"></span><span id="liveText">OFFLINE</span></div>
+      <div class="project" id="project">menunggu sesi Claude Code…</div>
+      <div class="spacer"></div>
+      <div class="notify-wrap">
+        <button class="btn" id="bell" aria-haspopup="true" aria-expanded="false">
+          🔔 Notifikasi <span class="count" id="bellCount" hidden></span>
+        </button>
+        <div class="popover" id="notifyMenu" hidden>
+          <div class="ph"><strong>Riwayat</strong><button class="linkish" id="markRead">Tandai dibaca</button></div>
+          <ol class="history" id="history"></ol>
+          <div class="ph"><strong>Pengaturan</strong></div>
+          <label><input type="checkbox" id="nPerm" checked /> Saat butuh izin atau bertanya</label>
+          <label><input type="checkbox" id="nDone" /> Saat Claude selesai menjawab</label>
+          <label><input type="checkbox" id="nFail" checked /> Saat tool / jawaban gagal</label>
+          <label><input type="checkbox" id="nSound" checked /> Pakai bunyi</label>
+          <button class="btn" id="nTest">Tes notifikasi</button>
+          <p class="hint" id="nHint"></p>
+        </div>
+      </div>
+      <label class="demo"><input type="checkbox" id="demo" /> DEMO — bukan data asli</label>
+      <a class="btn" href="/catalog.html">📚 Katalog</a>
+      <a class="btn" href="/picker.html">Peta</a>
+      <button class="btn" id="cogBtn" aria-controls="custom" aria-expanded="false">⚙ Kustom</button>
+    </header>
+    <aside class="drawer" id="custom" hidden aria-label="Kustomisasi">
+      <div class="dhd">
+        <strong>Kustom</strong>
+        <button class="close" id="cClose" aria-label="Tutup">✕</button>
+      </div>
+      <nav class="ctabs">
+        <button data-tab="chars" class="on">Karakter</button>
+        <button data-tab="theme">Tema</button>
+        <button data-tab="rooms">Ruangan</button>
+      </nav>
+      <div class="cbody" id="cBody"></div>
+      <div class="ctoast" id="cToast" role="status" aria-live="polite"></div>
+    </aside>
+    <main class="layout">
+      <aside class="side">
+        <section class="card sessions">
+          <h3>Sesi</h3>
+          <div id="sessions"></div>
+        </section>
+        <section class="roster" id="roster"></section>
+        <section class="card" id="stats"></section>
+        <section class="card feed">
+          <h3>Aktivitas</h3>
+          <ol class="ticker" id="ticker"></ol>
+        </section>
+      </aside>
+      <section class="stage">
+        <div class="office dark" id="office">
+          <div class="map" id="map"></div>
+          <div class="fx" id="fx"></div>
+          <div class="labels" id="labels"></div>
+          <div class="chars" id="chars"></div>
+        </div>
+        <div class="banner" id="banner" hidden></div>
+      </section>
+    </main>
+    <div class="inbox" id="inbox" aria-live="polite"></div>
+    <div class="modal" id="detail" hidden>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dName">
+        <button class="close" id="dClose" aria-label="Tutup">✕</button>
+        <div class="dhead">
+          <img id="dPortrait" alt="" />
+          <div>
+            <div class="dname" id="dName"></div>
+            <div class="drole" id="dRole"></div>
+            <div class="dstatus" id="dStatus"></div>
+          </div>
+        </div>
+        <div class="dgrid" id="dFacts"></div>
+        <h4>Berkas yang diubah</h4>
+        <ul class="dfiles" id="dFiles"></ul>
+        <h4>Aktivitas terakhir</h4>
+        <ol class="ticker" id="dRecent"></ol>
+      </div>
+    </div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
